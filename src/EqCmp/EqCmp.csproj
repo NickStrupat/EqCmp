@@ -3,7 +3,17 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
+        <WarningsAsErrors>nullable</WarningsAsErrors>
         <RootNamespace>NickStrupat</RootNamespace>
+        
+        <Version>1.0.0-beta1</Version>
+        <Title>EqCmp</Title>
+        <Authors>Nick Strupat</Authors>
+        <Description>A small C# library for constructing instances of `IEqualityComparer&lt;T&gt;` using a succinct API</Description>
+        <PackageProjectUrl>https://github.com/NickStrupat/EqCmp</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/NickStrupat/EqCmp/blob/b2c356f315629e3f63b20e4a62c39fa4882c342f/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/NickStrupat/EqCmp</RepositoryUrl>
+        <PackageTags>equalitycomparer equality-comparer</PackageTags>
     </PropertyGroup>
 
 </Project>
