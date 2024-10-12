@@ -24,11 +24,7 @@ public static class EqCmp<T>
 				if (p1 is null || p2 is null)
 					return false;
 			}
-			if ((p1, p2) is (IEquatable<TP> eq1, var other1))
-				return eq1.Equals(other1);
-			if ((p1, p2) is (var other2, IEquatable<TP> eq2))
-				return eq2.Equals(other2);
-			return x!.Equals(y);
+			return EqualityComparer<TP>.Default.Equals(p1, p2);
 		},
 		x => prop(x)?.GetHashCode() ?? 0
 	);
