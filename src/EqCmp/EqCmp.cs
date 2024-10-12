@@ -3,47 +3,33 @@ using System.Collections.Generic;
 
 namespace NickStrupat;
 
-public sealed class EqCmp<T>(Func<T, T, Boolean> equals, Func<T, Int32> getHashCode) : IEqualityComparer<T> where T : notnull
+public static class EqCmp<T>
 {
-	public Boolean Equals(T? x, T? y)
-	{
-		if (typeof(T).IsValueType)
-			return equals(x!, y!);
-		if (ReferenceEquals(x, y))
-			return true;
-		if (x is null || y is null)
-			return false;
-		return equals(x, y);
-	}
-
-	public Int32 GetHashCode(T obj) => getHashCode(obj);
-
-	public static EqCmp<T> Create<TP>(Func<T, TP> prop) => new(
-		(x, y) => Eq(prop, x, y),
-		x => HashCode.Combine(prop(x))
+	public static IEqualityComparer<T> Create<TP>(Func<T, TP> prop) => EqualityComparer<T>.Create(
+		(x, y) =>
+		{
+			if (!typeof(T).IsValueType)
+			{
+				if (ReferenceEquals(x, y))
+					return true;
+				if (x is null || y is null)
+					return false;
+			}
+			var p1 = prop(x!);
+			var p2 = prop(y!);
+			if (!typeof(TP).IsValueType)
+			{
+				if (ReferenceEquals(p1, p2))
+					return true;
+				if (p1 is null || p2 is null)
+					return false;
+			}
+			if ((p1, p2) is (IEquatable<TP> eq1, var other1))
+				return eq1.Equals(other1);
+			if ((p1, p2) is (var other2, IEquatable<TP> eq2))
+				return eq2.Equals(other2);
+			return x!.Equals(y);
+		},
+		x => prop(x)?.GetHashCode() ?? 0
 	);
-
-	public static EqCmp<T> Create<TP1, TP2>(Func<T, TP1> prop1, Func<T, TP2> prop2) => new(
-		(x, y) => Eq(prop1, x, y) && Eq(prop2, x, y),
-		x => HashCode.Combine(prop1(x), prop2(x))
-	);
-	
-	public static EqCmp<T> Create<TP1, TP2, TP3>(Func<T, TP1> prop1, Func<T, TP2> prop2, Func<T, TP3> prop3) => new(
-		(x, y) => Eq(prop1, x, y) && Eq(prop2, x, y) && Eq(prop3, x, y),
-		x => HashCode.Combine(prop1(x), prop2(x), prop3(x))
-	);
-	
-	public static EqCmp<T> Create<TP1, TP2, TP3, TP4>(Func<T, TP1> prop1, Func<T, TP2> prop2, Func<T, TP3> prop3, Func<T, TP4> prop4) => new(
-		(x, y) => Eq(prop1, x, y) && Eq(prop2, x, y) && Eq(prop3, x, y) && Eq(prop4, x, y),
-		x => HashCode.Combine(prop1(x), prop2(x), prop3(x), prop4(x))
-	);
-	
-	private static Boolean Eq<TP>(Func<T, TP> prop, T x, T y) => (prop(x), prop(y)) switch
-	{
-		(null, null) => true,
-		(null, _) or (_, null) => false,
-		(IEquatable<TP> eq, var other) => eq.Equals(other),
-		(var other, IEquatable<TP> eq) => eq.Equals(other),
-		_ => x.Equals(y)
-	};
 }

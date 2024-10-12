@@ -8,7 +8,7 @@ public class EqCmpTests
 {
     [TestCase("Test", "Test", true)]
     [TestCase("Test", "Other", false)]
-    public void Create_WithOneMatchingProperties_ShouldReturnMatch(string name1, string name2, bool shouldMatch)
+    public void Create_WithOneMatchingProperty_ShouldReturnMatch(string name1, string name2, bool shouldMatch)
     {
         // Arrange
         var eqCmp = EqCmp<Foo1>.Create(x => x.Name);
@@ -30,7 +30,7 @@ public class EqCmpTests
     public void Create_WithTwoMatchingProperties_ShouldReturnMatch(string name1, int age1, string name2, int age2, bool shouldMatch)
     {
         // Arrange
-        var eqCmp = EqCmp<Foo2>.Create(x => x.Name, x => x.AgeInYears);
+        var eqCmp = EqCmp<Foo2>.Create(x => (x.Name, x.AgeInYears));
 
         // Act
         var result = eqCmp.Equals(
@@ -49,7 +49,7 @@ public class EqCmpTests
     public void Create_WithThreeMatchingProperties_ShouldReturnMatch(string fn1, string ln1, DateTime b1, string fn2, string ln2, DateTime b2, bool shouldMatch)
     {
         // Arrange
-        var eqCmp = EqCmp<Foo3>.Create(x => x.FirstName, x => x.LastName, x => x.BirthDate);
+        var eqCmp = EqCmp<Foo3>.Create(x => (x.FirstName, x.LastName, x.BirthDate));
 
         // Act
         var result = eqCmp.Equals(
