@@ -6,7 +6,7 @@
         <WarningsAsErrors>nullable</WarningsAsErrors>
         <RootNamespace>NickStrupat</RootNamespace>
         
-        <Version>1.0.0-beta3</Version>
+        <Version>1.0.0-beta4</Version>
         <Title>EqCmp</Title>
         <Authors>Nick Strupat</Authors>
         <Description>A small C# library for constructing instances of `IEqualityComparer&lt;T&gt;` using a succinct API</Description>
