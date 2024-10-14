@@ -3,10 +3,18 @@ using System.Collections.Generic;
 
 namespace NickStrupat;
 
+public static class EqCmp
+{
+	public static Boolean DefaultEquals<T>(T x, T y) => EqualityComparer<T>.Default.Equals(x, y);
+}
+
 public static class EqCmp<T>
 {
-	public static IEqualityComparer<T> Create<TP>(Func<T, TP> prop) => EqualityComparer<T>.Create(
-		(x, y) =>
+	public static IEqualityComparer<T> Create<TP>(Func<T, TP> prop) => new EqCmpImpl<TP>(prop);
+	
+	private sealed class EqCmpImpl<TP>(Func<T, TP> prop) : IEqualityComparer<T>
+	{
+		public Boolean Equals(T? x, T? y)
 		{
 			if (!typeof(T).IsValueType)
 			{
@@ -15,17 +23,19 @@ public static class EqCmp<T>
 				if (x is null || y is null)
 					return false;
 			}
-			var p1 = prop(x!);
-			var p2 = prop(y!);
+
+			return EqualityComparer<TP>.Default.Equals(prop(x!), prop(y!));
+		}
+		
+		public Int32 GetHashCode(T obj)
+		{
+			var value = prop(obj);
 			if (!typeof(TP).IsValueType)
 			{
-				if (ReferenceEquals(p1, p2))
-					return true;
-				if (p1 is null || p2 is null)
-					return false;
+				if (value == null)
+					return 0;
 			}
-			return EqualityComparer<TP>.Default.Equals(p1, p2);
-		},
-		x => prop(x)?.GetHashCode() ?? 0
-	);
+			return value!.GetHashCode();
+		}
+	}
 }

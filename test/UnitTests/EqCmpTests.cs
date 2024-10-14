@@ -8,7 +8,7 @@ public class EqCmpTests
 {
     [TestCase("Test", "Test", true)]
     [TestCase("Test", "Other", false)]
-    public void Create_WithOneMatchingProperty_ShouldReturnMatch(string name1, string name2, bool shouldMatch)
+    public void Create_WithOneMatchingProperty_ShouldReturnMatch(String name1, String name2, Boolean shouldMatch)
     {
         // Arrange
         var eqCmp = EqCmp<Foo1>.Create(x => x.Name);
@@ -27,7 +27,7 @@ public class EqCmpTests
     [TestCase("Test", 1, "Other", 1, false)]
     [TestCase("Test", 1, "Test", 2, false)]
     [TestCase("Test", 1, "Other", 2, false)]
-    public void Create_WithTwoMatchingProperties_ShouldReturnMatch(string name1, int age1, string name2, int age2, bool shouldMatch)
+    public void Create_WithTwoMatchingProperties_ShouldReturnMatch(String name1, Int32 age1, String name2, Int32 age2, Boolean shouldMatch)
     {
         // Arrange
         var eqCmp = EqCmp<Foo2>.Create(x => (x.Name, x.AgeInYears));
@@ -46,7 +46,7 @@ public class EqCmpTests
     [TestCase("Test", "Test", "1970-5-21", "Other", "Test", "1970-5-22", false)]
     [TestCase("Test", "Test", "1970-5-21", "Test", "Other", "1970-5-22", false)]
     [TestCase("Test", "Test", "1970-5-21", "Test", "Test", "1970-5-22", false)]
-    public void Create_WithThreeMatchingProperties_ShouldReturnMatch(string fn1, string ln1, DateTime b1, string fn2, string ln2, DateTime b2, bool shouldMatch)
+    public void Create_WithThreeMatchingProperties_ShouldReturnMatch(String fn1, String ln1, DateTime b1, String fn2, String ln2, DateTime b2, Boolean shouldMatch)
     {
         // Arrange
         var eqCmp = EqCmp<Foo3>.Create(x => (x.FirstName, x.LastName, x.BirthDate));
@@ -104,11 +104,11 @@ public class EqCmpTests
     public void Create_WithSameInstance_ShouldReturnTrue()
     {
         // Arrange
-        var foo = new Foo1("Test");
-        var eqCmp = EqCmp<Foo1>.Create(x => x.Name);
+        var eqCmp = EqCmp<Object>.Create(x => x);
+        var o = new Object();
 
         // Act
-        var result = eqCmp.Equals(foo, foo);
+        var result = eqCmp.Equals(o, o);
 
         // Assert
         result.Should().BeTrue();
@@ -118,13 +118,29 @@ public class EqCmpTests
     public void Create_WithDifferentInstances_ShouldReturnFalse()
     {
         // Arrange
-        var eqCmp = EqCmp<object>.Create(x => x);
+        var eqCmp = EqCmp<Object>.Create(x => x);
+        var o1 = new Object();
+        var o2 = new Object();
 
         // Act
-        var result = eqCmp.Equals(new(), new());
+        var result = eqCmp.Equals(o1, o2);
 
         // Assert
         result.Should().BeFalse();
+    }
+    
+    [TestCase(1, 1, true)]
+    [TestCase(1, 2, false)]
+    public void Create_WithValueTypes_ShouldReturnTrue(Int32 a, Int32 b, Boolean shouldMatch)
+    {
+        // Arrange
+        var eqCmp = EqCmp<Int32?>.Create(x => x);
+
+        // Act
+        var result = eqCmp.Equals(a, b);
+
+        // Assert
+        result.Should().Be(shouldMatch);
     }
 
     [TestCase(1, 1, true)]
@@ -132,10 +148,10 @@ public class EqCmpTests
     [TestCase(null, null, true)]
     [TestCase(1, null, false)]
     [TestCase(null, 1, false)]
-    public void Create_WithNullableValueTypes_ShouldReturnTrue(int? a, int? b, bool shouldMatch)
+    public void Create_WithNullableValueTypes_ShouldReturnTrue(Int32? a, Int32? b, Boolean shouldMatch)
     {
         // Arrange
-        var eqCmp = EqCmp<int?>.Create(x => x);
+        var eqCmp = EqCmp<Int32?>.Create(x => x);
 
         // Act
         var result = eqCmp.Equals(a, b);
@@ -161,23 +177,23 @@ public class EqCmpTests
         fooEquatable.Birth.HasEquatableEqualsBeenCalled.Should().BeTrue();
     }
 
-    sealed record Foo1(string Name);
-    sealed record Foo2(string Name, int AgeInYears);
-    sealed record Foo3(string FirstName, string LastName, DateOnly BirthDate);
+    sealed record Foo1(String Name);
+    sealed record Foo2(String Name, Int32 AgeInYears);
+    sealed record Foo3(String FirstName, String LastName, DateOnly BirthDate);
 
     sealed class BirthdayEquatable(DateTime birth) : IEquatable<BirthdayEquatable>
     {
-        public bool HasEquatableEqualsBeenCalled { get; private set; }
+        public Boolean HasEquatableEqualsBeenCalled { get; private set; }
         public DateTime Birth { get; } = birth;
-        public bool Equals(BirthdayEquatable? other)
+        public Boolean Equals(BirthdayEquatable? other)
         {
             HasEquatableEqualsBeenCalled = true;
             return other is not null && Birth.Date == other.Birth.Date;
         }
 
         // these shouldn't be called because we're using IEquatable
-        public override int GetHashCode() => throw new InvalidOperationException(); //HashCode.Combine(Birth.Date);
-        public override bool Equals(object? obj) => throw new InvalidOperationException(); //obj is BirthdayEquatable other && Equals(other);
+        public override Int32 GetHashCode() => throw new InvalidOperationException(); //HashCode.Combine(Birth.Date);
+        public override Boolean Equals(Object? obj) => throw new InvalidOperationException(); //obj is BirthdayEquatable other && Equals(other);
     }
 
     sealed record FooEquatable(BirthdayEquatable Birth);
