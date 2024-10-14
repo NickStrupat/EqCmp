@@ -10,9 +10,9 @@ public static class EqCmp
 
 public static class EqCmp<T>
 {
-	public static IEqualityComparer<T> Create<TP>(Func<T, TP> prop) => new EqCmpImpl<TP>(prop);
+	public static IEqualityComparer<T> Create<TP>(Func<T, TP> prop) => new Impl<TP>(prop);
 	
-	private sealed class EqCmpImpl<TP>(Func<T, TP> prop) : IEqualityComparer<T>
+	private sealed class Impl<TP>(Func<T, TP> prop) : IEqualityComparer<T>
 	{
 		public Boolean Equals(T? x, T? y)
 		{
